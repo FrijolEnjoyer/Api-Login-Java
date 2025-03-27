@@ -3,10 +3,7 @@ package com.PruebaLogin.Login.auth;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,5 +22,18 @@ public class AuthController {
     public  ResponseEntity<AuthResponse> reqister(@RequestBody RegisterRequest request)
     {
         return  ResponseEntity.ok(authService.register(request));
+    }
+
+    /// Tengo que manejar el body de respuesta al usuario no encontrado
+    @PutMapping(value = "edit")
+    public ResponseEntity<AuthResponse> edit(@RequestBody EditRequest request)
+    {
+        return  ResponseEntity.ok(authService.edit(request));
+    }
+
+    @DeleteMapping(value = "delete/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
+        authService.deleteUser(id);
+        return ResponseEntity.ok("Usuario eliminado");
     }
 }

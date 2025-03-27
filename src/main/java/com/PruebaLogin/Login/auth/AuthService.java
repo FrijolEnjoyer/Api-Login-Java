@@ -43,4 +43,36 @@ public class AuthService {
                 .token(jwtService.getToken(user))
                 .build();
     }
+    public AuthResponse edit(EditRequest request){
+        User user = userRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Usuario "+ request.getId() +"+no encontrado"));
+
+        if (request.getUsername() !=null){
+            user.setUsername(request.getUsername());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        if (request.getCountry() != null ){
+            user.setCountry(request.getCountry());
+        }
+        if (request.getFirtsname() !=null){
+            user.setFirtsname(request.getFirtsname());
+        }
+        if (request.getLastname() !=null){
+            user.setLastname(request.getLastname());
+        }
+
+        userRepository.save(user);
+        String  token = jwtService.getToken(user);
+        return AuthResponse.builder()
+                .token(token)
+                .build();
+    }
+
+    public void deleteUser(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        userRepository.delete(user);
+    }
 }
