@@ -17,5 +17,6 @@ public class EditRequest {
     String firtsname;
     String lastname;
     String country;
+    String profileImage;
 
 }

@@ -24,7 +24,6 @@ public class AuthController {
         return  ResponseEntity.ok(authService.register(request));
     }
 
-    /// Tengo que manejar el body de respuesta al usuario no encontrado
     @PutMapping(value = "edit")
     public ResponseEntity<AuthResponse> edit(@RequestBody EditRequest request)
     {
@@ -33,7 +32,12 @@ public class AuthController {
 
     @DeleteMapping(value = "delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
-        authService.deleteUser(id);
-        return ResponseEntity.ok("Usuario eliminado");
+
+        try{
+            authService.deleteUser(id);
+            return ResponseEntity.ok("Usuario eliminado");
+        }catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

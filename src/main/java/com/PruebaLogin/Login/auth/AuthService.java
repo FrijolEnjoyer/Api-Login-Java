@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -29,20 +31,27 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
-        User user = User.builder()
+        User.UserBuilder userBuilder = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .firtsname(request.getFirtsname())
                 .lastname(request.getLastname())
                 .country(request.getCountry())
-                .role(Role.USER)
-                .build();
+                .role(Role.USER);
+
+        if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
+            userBuilder.profileImage(request.getProfileImage());
+        }
+
+        User user = userBuilder.build();
         userRepository.save(user);
 
         return AuthResponse.builder()
                 .token(jwtService.getToken(user))
+                .profileImage(user.getProfileImage())
                 .build();
     }
+
     public AuthResponse edit(EditRequest request){
         User user = userRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Usuario "+ request.getId() +"+no encontrado"));
@@ -62,17 +71,24 @@ public class AuthService {
         if (request.getLastname() !=null){
             user.setLastname(request.getLastname());
         }
+        if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
+            user.setProfileImage(request.getProfileImage());
+        }
 
         userRepository.save(user);
         String  token = jwtService.getToken(user);
         return AuthResponse.builder()
                 .token(token)
+                .profileImage(user.getProfileImage())
                 .build();
     }
 
     public void deleteUser(Integer id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> {
+                    System.out.println("Intento de eliminar usuario con ID " + id + ", pero no fue encontrado.");
+                    return new RuntimeException("Usuario no encontrado");
+                });
         userRepository.delete(user);
     }
 }
